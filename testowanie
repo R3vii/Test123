@@ -1,0 +1,149 @@
+ZADANIE 1
+
+def permute(nums):
+    """
+    Zwróć listę wszystkich permutacji.
+    nums: lista liczb (unikalnych)
+    """
+    results = []
+ 
+    def backtrack(current_path):
+        # Warunek bazowy: jeśli długość aktualnej ścieżki jest równa 
+        # długości nums, mamy kompletną permutację
+        if len(current_path) == len(nums):
+            results.append(list(current_path))  # Dodajemy kopię listy
+            return
+ 
+        for num in nums:
+            # Ponieważ liczby są unikalne, sprawdzamy czy num już jest w ścieżce
+            if num not in current_path:
+                # 1. Wybór: dodajemy liczbę do aktualnej permutacji
+                current_path.append(num)
+                # 2. Rekurencja: szukamy kolejnych liczb
+                backtrack(current_path)
+                # 3. Backtrack: usuwamy ostatnią liczbę, aby móc sprawdzić 
+                # inne możliwości w tej samej pętli
+                current_path.pop()
+ 
+    backtrack([])
+    return results
+ 
+# Testy
+results = permute([1, 2, 3])
+print(f"Permutacje [1, 2, 3]: {results}")
+assert len(results) == 6
+assert [1, 2, 3] in results
+assert [3, 2, 1] in results
+
+
+ZADANIE 2
+
+assert permute([0, 1]) == [[0, 1], [1, 0]] or permute([0, 1]) == [[1, 0], [0, 1]]
+assert permute([1]) == [[1]]
+print("Wszystkie testy zaliczone!")
+
+def coin_change(coins, amount):
+    """
+    Oblicz minimalną liczbę monet potrzebną do wydania kwoty amount.
+    """
+    # Inicjalizujemy tablicę wartością większą niż jakakolwiek możliwa liczba monet
+    # (np. amount + 1), co reprezentuje "nieskończoność".
+    dp = [amount + 1] * (amount + 1)
+    # Warunek bazowy: aby wydać kwotę 0, potrzebujemy 0 monet
+    dp[0] = 0
+    # Przechodzimy przez każdą kwotę od 1 do amount
+    for i in range(1, amount + 1):
+        for coin in coins:
+            # Jeśli moneta nie przekracza aktualnej kwoty i
+            # możemy zbudować kwotę (i - coin)
+            if i - coin >= 0:
+                # Wybieramy minimum między obecną wartością a 
+                # nowym rozwiązaniem (1 moneta + wynik dla reszty kwoty)
+                dp[i] = min(dp[i], dp[i - coin] + 1)
+    # Jeśli wartość w dp[amount] nadal wynosi amount + 1, oznacza to, 
+    # że nie da się wydać tej kwoty.
+    return dp[amount] if dp[amount] != amount + 1 else -1
+ 
+# Testy
+assert coin_change([1, 2, 5], 11) == 3
+assert coin_change([2], 3) == -1
+assert coin_change([1], 0) == 0
+assert coin_change([2, 5, 10, 1], 27) == 4
+print("Wszystkie testy zaliczone!")
+
+
+ZADANIE 3
+
+
+def max_activities(intervals):
+    """
+    intervals: lista krotek (start, end)
+    Zwróć maksymalną liczbę zajęć, w których można wziąć udział.
+    """
+    if not intervals:
+        return 0
+ 
+    # 1. Sortujemy zajęcia według czasu zakończenia (drugi element krotki)
+    # To jest kluczowy krok algorytmu zachłannego.
+    intervals.sort(key=lambda x: x[1])
+ 
+    count = 0
+    last_end_time = -float('inf') # Czas zakończenia ostatnio wybranego zajęcia
+ 
+    for start, end in intervals:
+        # 2. Jeśli start aktualnego zajęcia jest >= niż koniec poprzedniego,
+        # możemy wziąć w nim udział.
+        if start >= last_end_time:
+            count += 1
+            last_end_time = end # Aktualizujemy czas zakończenia
+ 
+    return count
+ 
+# Testy
+test_1 = [(1,2), (3,4), (0,6), (5,7), (8,9), (5,9)]
+assert max_activities(test_1) == 4
+ 
+test_2 = [(10, 20), (20, 30)] 
+assert max_activities(test_2) == 2
+ 
+test_3 = [(1, 10), (2, 3), (4, 5), (6, 7)] 
+assert max_activities(test_3) == 3
+ 
+print("Wszystkie testy zaliczone!")
+
+ZADANIE 4
+
+import random
+ 
+def estimate_pi(n_points):
+    """
+    Oszacuj liczbę Pi symulując rzut n_points punktów.
+    Punkty losujemy z zakresu [-1, 1] dla x i y.
+    Sprawdzamy czy x^2 + y^2 <= 1.
+    """
+    points_inside_circle = 0
+ 
+    for _ in range(n_points):
+        # Losujemy współrzędne x i y z zakresu [-1, 1]
+        x = random.uniform(-1, 1)
+        y = random.uniform(-1, 1)
+ 
+        # Sprawdzamy, czy punkt znajduje się wewnątrz koła (odległość od (0,0) <= 1)
+        # Z równania koła: x^2 + y^2 <= r^2, gdzie r = 1
+        if x**2 + y**2 <= 1:
+            points_inside_circle += 1
+ 
+    # Z wzoru: (punkty_w_kole / wszystkie_punkty) ≈ pi / 4
+    # Zatem: pi ≈ 4 * (punkty_w_kole / wszystkie_punkty)
+    return 4 * (points_inside_circle / n_points)
+ 
+# Testy
+pi_low = estimate_pi(1000)
+print(f"Przybliżenie dla 1 000 punktów: {pi_low}")
+assert 2.8 < pi_low < 3.4
+ 
+pi_precise = estimate_pi(100000)
+print(f"Przybliżenie dla 100 000 punktów: {pi_precise}")
+assert 3.10 < pi_precise < 3.18
+ 
+print("Wszystkie testy zaliczone!")
